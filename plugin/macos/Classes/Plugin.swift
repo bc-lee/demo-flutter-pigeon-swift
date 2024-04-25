@@ -10,3 +10,6 @@ public class Plugin: NSObject, FlutterPlugin {
         fatalError("Not implemented")
     }
 }
+
+// Adding the extension for FlutterError doesn't make the code compile
+extension FlutterError: Error {}

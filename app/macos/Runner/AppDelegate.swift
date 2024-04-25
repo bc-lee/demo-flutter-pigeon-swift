@@ -7,3 +7,6 @@ class AppDelegate: FlutterAppDelegate {
         return true
     }
 }
+
+// Adding the extension for FlutterError doesn't make the code compile
+extension FlutterError: Error {}

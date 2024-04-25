@@ -1,0 +1,51 @@
+name: Build
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Prepare
+        run: |
+          ./run_pigeon.sh
+
+      - name: Validate files not changed
+        run: |
+          changed=$(git status -s 2>&1 | wc -l)
+          if [[ $changed -ne 0 ]]; then
+            echo "Changed files detected after build:"
+            git status -s
+            exit 1
+          fi
+
+      - name: Build
+        run: |
+          cd app
+          flutter build macos
+
+      - name: Validate files not changed once more
+        run: |
+          changed=$(git status -s 2>&1 | wc -l)
+          if [[ $changed -ne 0 ]]; then
+            echo "Changed files detected after build:"
+            git status -s
+            exit 1
+          fi

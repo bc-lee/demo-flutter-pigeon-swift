@@ -193,10 +193,11 @@ packages:
   pigeon:
     dependency: "direct dev"
     description:
-      name: pigeon
-      sha256: be883401d09121c427ed9c5f6e96427787d93d335f55e5e2b0d780a0a22cd561
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/pigeon"
+      ref: c510bd6b0cc0da652ae714f6ee8132a37e27310a
+      resolved-ref: c510bd6b0cc0da652ae714f6ee8132a37e27310a
+      url: "https://github.com/bc-lee/flutter-packages.git"
+    source: git
     version: "18.0.0"
   pub_semver:
     dependency: transitive

@@ -13,7 +13,11 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^3.0.0
-  pigeon: 18.0.0
+  pigeon:
+    git:
+      url: https://github.com/bc-lee/flutter-packages.git
+      path: packages/pigeon
+      ref: c510bd6b0cc0da652ae714f6ee8132a37e27310a
 
 flutter:
   plugin:

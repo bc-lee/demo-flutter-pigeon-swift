@@ -11,6 +11,31 @@ import Foundation
   #error("Unsupported platform.")
 #endif
 
+/// Error thrown by Pigeon. Encapsulates a code, message, and details.
+class PigeonError: Swift.Error {
+  let code: String
+  let message: String?
+  let details: Any?
+
+  init(code: String, message: String?, details: Any?) {
+    self.code = code
+    self.message = message
+    self.details = details
+  }
+
+  var localizedDescription: String {
+    let detailsDescription: String
+    if let convertibleObject = details as? CustomStringConvertible {
+      detailsDescription = convertibleObject.description
+    } else if let _ = details {
+      detailsDescription = "<non-convertible object>"
+    } else {
+      detailsDescription = "<nil>"
+    }
+    return "PigeonError(code: \(code), message: \(message ?? "<nil>"), details: \(detailsDescription)"
+  }
+}
+
 private func wrapResult(_ result: Any?) -> [Any?] {
   return [result]
 }
@@ -30,8 +55,8 @@ private func wrapError(_ error: Any) -> [Any?] {
   ]
 }
 
-private func createConnectionError(withChannelName channelName: String) -> FlutterError {
-  return FlutterError(code: "channel-error", message: "Unable to establish connection on channel: '\(channelName)'.", details: "")
+private func createConnectionError(withChannelName channelName: String) -> PigeonError {
+  return PigeonError(code: "channel-error", message: "Unable to establish connection on channel: '\(channelName)'.", details: "")
 }
 
 private func isNullish(_ value: Any?) -> Bool {
@@ -73,7 +98,7 @@ class IFlutterToNativePluginSetup {
 }
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol INativeToFlutterPluginProtocol {
-  func getMessage(message messageArg: String, completion: @escaping (Result<Void, FlutterError>) -> Void)
+  func getMessage(message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void)
 }
 class INativeToFlutterPlugin: INativeToFlutterPluginProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -82,7 +107,7 @@ class INativeToFlutterPlugin: INativeToFlutterPluginProtocol {
     self.binaryMessenger = binaryMessenger
     self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
   }
-  func getMessage(message messageArg: String, completion: @escaping (Result<Void, FlutterError>) -> Void) {
+  func getMessage(message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.plugin.INativeToFlutterPlugin.getMessage\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger)
     channel.sendMessage([messageArg] as [Any?]) { response in
@@ -94,7 +119,7 @@ class INativeToFlutterPlugin: INativeToFlutterPluginProtocol {
         let code: String = listResponse[0] as! String
         let message: String? = nilOrValue(listResponse[1])
         let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(FlutterError(code: code, message: message, details: details)))
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
       } else {
         completion(.success(Void()))
       }
